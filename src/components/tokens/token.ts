@@ -33,8 +33,10 @@ const main = async () => {
     const metadata = await alchemy.core.getTokenMetadata(token.contractAddress);
 
     // Compute token balance in human-readable format
-    balance = balance / Math.pow(10, metadata.decimals);
-    balance = balance.toFixed(2);
+    if (balance && metadata) {
+      const res = Number(balance) / Math.pow(10, metadata.decimals!);
+      balance = res.toFixed(2);
+    }
 
     // Print name, balance, and symbol of token
     console.log(`${i++}. ${metadata.name}: ${balance} ${metadata.symbol}`);

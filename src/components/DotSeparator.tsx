@@ -1,6 +1,6 @@
 import { Spacer } from "@nextui-org/spacer";
 
-export function DotSpacer({ space = 3 }: { space?: number }) {
+export function DotSpacer({ space = 3 }: { space?: any }) {
   return (
     <>
       <Spacer x={space} />
