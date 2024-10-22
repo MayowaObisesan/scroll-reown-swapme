@@ -147,18 +147,18 @@ export default function Home() {
           >
             Monitor | Buy | Send | Swap
           </div> */}
-          <div className="self-center flex flex-row items-center bg-clip-text text-transparent bg-gradient-to-r from-[#888888] to-[#4B4B4B] dark:from-[#5EA2EF] dark:to-[#0072F5] text-3xl lg:text-4xl">
+          <div className="self-center flex flex-row items-center bg-clip-text text-transparent bg-gradient-to-r from-[#888888] to-[#4B4B4B] dark:from-[#5EA2EF] dark:to-[#0072F5] font-semibold text-2xl lg:text-3xl">
             Monitor <DotSpacer space={4} /> Buy <DotSpacer space={4} /> Send{" "}
             <DotSpacer space={4} /> Swap
           </div>
           <div
             className={title({
-              size: "md",
+              size: "sm",
               fullWidth: true,
               fontWeight: "medium",
             })}
           >
-            all in one Platform
+            all in one platform
           </div>
         </section>
         <br />
