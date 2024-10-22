@@ -114,7 +114,11 @@ const TokenBalances = () => {
           items={balances}
           isLoading={loading}
           loadingContent={<Spinner label="Loading..." />}
-          emptyContent={"No tokens to display."}
+          emptyContent={
+            !address
+              ? "Connect your wallet to see your tokens"
+              : "No tokens to display."
+          }
         >
           {(item) => (
             <TableRow key={balances.id}>

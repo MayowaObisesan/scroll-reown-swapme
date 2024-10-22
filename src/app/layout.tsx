@@ -47,8 +47,8 @@ export default function RootLayout({
           fontSans.variable
         )}
       >
-        <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-          <AppKitProvider>
+        <AppKitProvider>
+          <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
             <NextTopLoader />
             <div className="relative flex flex-col h-screen">
               <Navbar />
@@ -57,8 +57,8 @@ export default function RootLayout({
                 {/* <Footer /> */}
               </footer>
             </div>
-          </AppKitProvider>
-        </Providers>
+          </Providers>
+        </AppKitProvider>
       </body>
     </html>
   );

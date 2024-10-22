@@ -1,34 +1,49 @@
-import { defaultWagmiConfig } from '@web3modal/wagmi/react/config'
+import { createAppKit } from '@reown/appkit/react'
 
-import { cookieStorage, createStorage } from 'wagmi'
-import { mainnet, sepolia, base } from 'wagmi/chains'
+import { arbitrum, mainnet, scrollSepolia, scroll } from '@reown/appkit/networks'
+import { QueryClient } from '@tanstack/react-query'
+import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 
-// Get projectId from https://cloud.walletconnect.com
+// 0. Setup queryClient
+export const queryClient = new QueryClient()
+
+// 1. Get projectId from https://cloud.reown.com
 export const projectId = process.env.NEXT_PUBLIC_PROJECT_ID
 
 if (!projectId) throw new Error('Project ID is not defined')
 
+// 2. Create a metadata object - optional
 export const metadata = {
     name: 'SwapMe',
     description: 'SwapMe is a project for easy swapping of your tokens using walletConnect AppKit and 1inch',
     url: 'https://web3modal.com', // origin must match your domain & subdomain
-    icons: ['https://avatars.githubusercontent.com/u/37784886']
+    icons: ['https://avatars.githubusercontent.com/u/179229932']
 }
 
-// Create wagmiConfig
-const chains = [mainnet, base] as const
-export const config = defaultWagmiConfig({
-    chains,
+// 3. Set the networks
+export const networks = [scrollSepolia, scroll]
+
+// 4. Create Wagmi Adapter
+export const wagmiAdapter = new WagmiAdapter({
+    networks,
     projectId,
-    metadata,
-    auth: {
-        email: true, // default to true
-        socials: ['google', 'x', 'github', 'discord', 'apple', 'facebook', 'farcaster'],
-        showWallets: true, // default to true
-        walletFeatures: true // default to true
-    },
-    ssr: true,
-    storage: createStorage({
-        storage: cookieStorage
-    }),
+    ssr: true
 })
+
+// Create wagmiConfig
+// const chains = [mainnet, base] as const
+// export const config = defaultWagmiConfig({
+//     chains,
+//     projectId,
+//     metadata,
+//     auth: {
+//         email: true, // default to true
+//         socials: ['google', 'x', 'github', 'discord', 'apple', 'facebook', 'farcaster'],
+//         showWallets: true, // default to true
+//         walletFeatures: true // default to true
+//     },
+//     ssr: true,
+//     storage: createStorage({
+//         storage: cookieStorage
+//     }),
+// })

@@ -6,6 +6,8 @@ import { Button } from "@nextui-org/button";
 import TokenBalances from "@/components/tokens";
 import ConnectButton from "@/components/connectButton";
 import { title } from "@/components/primitives";
+import { Chip } from "@nextui-org/chip";
+import { useAccount } from "wagmi";
 
 function HomeOld() {
   return (
@@ -122,13 +124,15 @@ function HomeOld() {
 }
 
 export default function Home() {
+  const { address, isConnected } = useAccount();
+
   return (
-    <section className="container flex flex-col items-center justify-center max-w-7xl mx-auto gap-4 py-8 md:py-10">
+    <section className="container flex flex-col items-center justify-center max-w-7xl mx-auto gap-4 py-8 md:py-4">
       <div className="inline-block max-w-xl text-center justify-center leading-[3]">
         {/* <div className={"font-bold text-4xl text-pretty"}>SwapMe Protocol</div> */}
-        {/* <Chip color="default" variant="flat" size="lg">
-          SwapMe Protocol
-        </Chip> */}
+        <Chip color="default" variant="flat" size="lg">
+          Powered by Reown AppKit
+        </Chip>
         <br />
         <div className={title({ color: "blue", size: "xxxl" })}>
           Buy, Send, Swap
@@ -137,6 +141,11 @@ export default function Home() {
           all in one Platform
         </div>
         <br />
+        {address && isConnected && (
+          <Chip color="primary" variant="shadow" size="lg">
+            Click the button below to begin
+          </Chip>
+        )}
         {/* <h1 className={title({ size: "sm" })}>(Tokenbound Accounts)</h1> */}
         {/* <h2 className={subtitle({ class: "mt-4" })}>
           Using Tokenbound ERC6551 accounts on starknet
@@ -154,7 +163,7 @@ export default function Home() {
         >
           Swap
         </NextLink> */}
-        <Button
+        {/* <Button
           color="primary"
           variant="shadow"
           size="lg"
@@ -162,7 +171,7 @@ export default function Home() {
           className="w-60"
         >
           Swap
-        </Button>
+        </Button> */}
         <ConnectButton />
       </div>
 
@@ -179,7 +188,7 @@ export default function Home() {
         <Snippet hideCopyButton hideSymbol variant="bordered"></Snippet>
       </div> */}
 
-      <div className="mt-20 w-full lg:max-w-4xl">
+      <div className="mt-20 w-full lg:max-w-5xl">
         <div className="font-bold text-3xl text-center pb-12">Your Tokens</div>
         <TokenBalances />
       </div>
