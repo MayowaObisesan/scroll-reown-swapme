@@ -27,6 +27,7 @@ if (!projectId) throw new Error("Project ID is not defined");
 // 5. Create modal
 createAppKit({
   adapters: [wagmiAdapter],
+  // @ts-ignore
   networks: networks,
   projectId,
   metadata,

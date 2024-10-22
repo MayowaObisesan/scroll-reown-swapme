@@ -4,7 +4,6 @@ import "@/styles/globals.css";
 import type { Metadata, Viewport } from "next";
 import { fontSans } from "@/config/fonts";
 import { cookieToInitialState } from "wagmi";
-import { config } from "@/config/wagmi";
 // import { headers } from "next/headers";
 import AppKitProvider from "@/context";
 import { siteConfig } from "@/config/site";

@@ -29,7 +29,7 @@ export const Navbar = () => {
           className="sm:hidden"
         />
         <NavbarBrand>
-          <p className="font-bold text-inherit">SwapMe</p>
+          <p className="font-bold text-inherit">Wallet-Info</p>
         </NavbarBrand>
       </NavbarContent>
 

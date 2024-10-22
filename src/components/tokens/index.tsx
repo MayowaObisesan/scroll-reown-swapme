@@ -52,7 +52,9 @@ const TokenBalances = () => {
         // const address = "0xd8da6bf26964af9d7eed9e03e53415d37aa96045";
 
         // Get token balances
-        const balancesResponse = await alchemy.core.getTokenBalances(address);
+        const balancesResponse = await alchemy.core.getTokenBalances(
+          address as string
+        );
 
         // Remove tokens with zero balance
         const nonZeroBalances = balancesResponse.tokenBalances.filter(
@@ -65,8 +67,9 @@ const TokenBalances = () => {
             const metadata = await alchemy.core.getTokenMetadata(
               token.contractAddress
             );
-            let balance = token.tokenBalance / Math.pow(10, metadata.decimals);
-            balance = balance.toFixed(2);
+            let balance =
+              Number(token?.tokenBalance) / Math.pow(10, metadata.decimals!);
+            balance = Number(balance.toFixed(2));
             return {
               id: index + 1,
               name: metadata.name,
@@ -76,10 +79,10 @@ const TokenBalances = () => {
           })
         );
 
-        setBalances(enrichedBalances);
+        setBalances(enrichedBalances as unknown as any);
         setLoading(false);
       } catch (err) {
-        setError(err.message);
+        setError((err as unknown as any).message);
         setLoading(false);
       } finally {
         setLoading(false);
@@ -121,7 +124,7 @@ const TokenBalances = () => {
           }
         >
           {(item) => (
-            <TableRow key={balances.id}>
+            <TableRow key={(balances as any).id}>
               {(columnKey) => (
                 <TableCell>{getKeyValue(item, columnKey)}</TableCell>
               )}
