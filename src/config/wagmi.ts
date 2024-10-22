@@ -14,8 +14,8 @@ if (!projectId) throw new Error('Project ID is not defined')
 
 // 2. Create a metadata object - optional
 export const metadata = {
-    name: 'SwapMe',
-    description: 'SwapMe is a project for easy swapping of your tokens using walletConnect AppKit and 1inch',
+    name: 'WalletInfo',
+    description: 'Wallet-info streamlines your wallet management process, saving users valuable time and effort while ensuring that they stay updated on the status of their wallets',
     url: 'https://web3modal.com', // origin must match your domain & subdomain
     icons: ['https://avatars.githubusercontent.com/u/179229932']
 }

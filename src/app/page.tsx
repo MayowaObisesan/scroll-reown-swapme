@@ -8,6 +8,7 @@ import ConnectButton from "@/components/connectButton";
 import { title } from "@/components/primitives";
 import { Chip } from "@nextui-org/chip";
 import { useAccount } from "wagmi";
+import { DotSpacer } from "@/components/DotSeparator";
 
 function HomeOld() {
   return (
@@ -128,18 +129,38 @@ export default function Home() {
 
   return (
     <section className="container flex flex-col items-center justify-center max-w-7xl mx-auto gap-4 py-8 md:py-4">
-      <div className="inline-block max-w-xl text-center justify-center leading-[3]">
+      <div className="flex flex-col justify-center items-center max-w-2xl text-center leading-[3]">
         {/* <div className={"font-bold text-4xl text-pretty"}>SwapMe Protocol</div> */}
-        <Chip color="default" variant="flat" size="lg">
+        <Chip color="default" variant="flat" size="md">
           Powered by Reown AppKit
         </Chip>
-        <br />
-        <div className={title({ color: "blue", size: "xxxl" })}>
-          Buy, Send, Swap
-        </div>
-        <div className={title({ size: "lg", fullWidth: true })}>
-          all in one Platform
-        </div>
+        <section className="flex flex-col space-y-4">
+          <div className={title({ color: "foreground", size: "xxxl" })}>
+            Own your Wallet
+          </div>
+          {/* <div
+            className={title({
+              color: "blue",
+              size: "sm",
+              fontWeight: "medium",
+            })}
+          >
+            Monitor | Buy | Send | Swap
+          </div> */}
+          <div className="self-center flex flex-row items-center bg-clip-text text-transparent bg-gradient-to-r from-[#888888] to-[#4B4B4B] dark:from-[#5EA2EF] dark:to-[#0072F5] text-3xl lg:text-4xl">
+            Monitor <DotSpacer space={4} /> Buy <DotSpacer space={4} /> Send{" "}
+            <DotSpacer space={4} /> Swap
+          </div>
+          <div
+            className={title({
+              size: "md",
+              fullWidth: true,
+              fontWeight: "medium",
+            })}
+          >
+            all in one Platform
+          </div>
+        </section>
         <br />
         {address && isConnected && (
           <Chip color="primary" variant="shadow" size="lg">
