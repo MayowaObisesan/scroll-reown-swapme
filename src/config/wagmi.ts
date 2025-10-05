@@ -1,8 +1,9 @@
 import { createAppKit } from '@reown/appkit/react'
 
-import { arbitrum, mainnet, scrollSepolia, scroll } from '@reown/appkit/networks'
+import { arbitrum, mainnet, scrollSepolia, base, baseSepolia, sepolia, goerli } from '@reown/appkit/networks'
 import { QueryClient } from '@tanstack/react-query'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
+import { defineChain } from 'viem'
 
 // 0. Setup queryClient
 export const queryClient = new QueryClient()
@@ -20,8 +21,32 @@ export const metadata = {
     icons: ['https://avatars.githubusercontent.com/u/179229932']
 }
 
+// Custom network with custom RPC
+const customScroll = defineChain({
+  id: 534352,
+  name: 'Scroll',
+  network: 'scroll',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'Ether',
+    symbol: 'ETH',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.scroll.io'],
+    },
+    public: {
+      http: ['https://rpc.scroll.io'],
+    },
+  },
+  blockExplorers: {
+    default: { name: 'Scrollscan', url: 'https://scrollscan.com' },
+  },
+  testnet: false,
+});
+
 // 3. Set the networks
-export const networks = [scrollSepolia, scroll]
+export const networks = [scrollSepolia, customScroll, baseSepolia, base, mainnet, sepolia, goerli]
 
 // 4. Create Wagmi Adapter
 export const wagmiAdapter = new WagmiAdapter({

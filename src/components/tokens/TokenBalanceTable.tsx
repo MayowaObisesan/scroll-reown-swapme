@@ -28,6 +28,14 @@ const columns = [
     key: "symbol",
     label: "SYMBOL",
   },
+  {
+    key: "usdValue",
+    label: "VALUE (USD)",
+  },
+  {
+    key: "networkName",
+    label: "NETWORK",
+  },
 ];
 
 interface TokenBalanceTableProps {
@@ -63,7 +71,13 @@ export const TokenBalanceTable: React.FC<TokenBalanceTableProps> = ({
         {(item) => (
           <TableRow key={item.id}>
             {(columnKey) => (
-              <TableCell>{getKeyValue(item, columnKey)}</TableCell>
+              <TableCell>
+                {columnKey === "usdValue"
+                  ? item.usdValue
+                    ? `$${item.usdValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}`
+                    : "-"
+                  : getKeyValue(item, columnKey)}
+              </TableCell>
             )}
           </TableRow>
         )}

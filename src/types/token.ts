@@ -6,6 +6,9 @@ export interface TokenBalance {
   balance: number;
   decimals: number;
   logo?: string;
+  networkId: number;
+  networkName: string;
+  usdValue?: number;
 }
 
 export interface TokenMetadata {
