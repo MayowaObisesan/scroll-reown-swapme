@@ -5,7 +5,7 @@ import { Card, CardHeader, CardBody } from "@nextui-org/card";
 import { Chip } from "@nextui-org/chip";
 import { Spinner } from "@nextui-org/spinner";
 import { Button } from "@nextui-org/button";
-import { RefreshCw, TrendingUp, DollarSign, Percent } from "lucide-react";
+import { RefreshCw, TrendingUp, DollarSign, Percent, AlertTriangle } from "lucide-react";
 import { useAccount } from "wagmi";
 import { DeFiService, DeFiPosition } from "../../utils/defiUtils";
 
@@ -18,6 +18,7 @@ export const DeFiPositions: React.FC<DeFiPositionsProps> = ({ onRefresh }) => {
   const [positions, setPositions] = useState<DeFiPosition[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [withdrawingPosition, setWithdrawingPosition] = useState<string | null>(null);
 
   const fetchPositions = async () => {
     if (!address) return;
@@ -70,6 +71,28 @@ export const DeFiPositions: React.FC<DeFiPositionsProps> = ({ onRefresh }) => {
   const totalAPR = positions.length > 0
     ? positions.reduce((sum, pos) => sum + parseFloat(pos.apr || '0'), 0) / positions.length
     : 0;
+
+  const handleEmergencyWithdraw = async (position: DeFiPosition) => {
+    if (!address) return;
+
+    const positionId = `${position.protocol}-${position.type}-${position.networkId}`;
+    setWithdrawingPosition(positionId);
+
+    try {
+      const result = await DeFiService.emergencyWithdraw(position, address);
+      if (result.success) {
+        alert(`Emergency withdrawal successful! Transaction: ${result.txHash}`);
+        // Refresh positions after withdrawal
+        await fetchPositions();
+      } else {
+        alert(`Emergency withdrawal failed: ${result.error}`);
+      }
+    } catch (error) {
+      alert(`Emergency withdrawal failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    } finally {
+      setWithdrawingPosition(null);
+    }
+  };
 
   if (!address) {
     return (
@@ -152,6 +175,18 @@ export const DeFiPositions: React.FC<DeFiPositionsProps> = ({ onRefresh }) => {
                     <div className="text-right">
                       <p className="font-semibold">${parseFloat(position.value || '0').toLocaleString()}</p>
                       <p className="text-sm text-green-600">{position.apr}% APR</p>
+                      <Button
+                        size="sm"
+                        color="danger"
+                        variant="light"
+                        startContent={<AlertTriangle className="w-3 h-3" />}
+                        onClick={() => handleEmergencyWithdraw(position)}
+                        isLoading={withdrawingPosition === `${position.protocol}-${position.type}-${position.networkId}`}
+                        disabled={withdrawingPosition !== null}
+                        className="mt-1"
+                      >
+                        Emergency Withdraw
+                      </Button>
                     </div>
                   </div>
 

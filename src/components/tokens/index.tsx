@@ -152,6 +152,18 @@ const TokenBalances = () => {
     fetchMultiChainBalances();
   }, [address, isConnected, refreshTrigger]);
 
+  // Background refresh for real-time data
+  useEffect(() => {
+    if (!address || !isConnected) return;
+
+    const interval = setInterval(() => {
+      // Trigger background refresh every 5 minutes
+      setRefreshTrigger(prev => prev + 1);
+    }, 5 * 60 * 1000); // 5 minutes
+
+    return () => clearInterval(interval);
+  }, [address, isConnected]);
+
   //   if (loading)
   //     return (
   //       <div>

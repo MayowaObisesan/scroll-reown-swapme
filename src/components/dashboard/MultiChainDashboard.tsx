@@ -111,6 +111,33 @@ export const MultiChainDashboard: React.FC<MultiChainDashboardProps> = ({
     return colors[networkName] || "default";
   };
 
+  const networkRecommendations = useMemo(() => {
+    if (networkHealth.length === 0) return null;
+
+    const healthyNetworks = networkHealth.filter(h => !h.error && h.gasPrice);
+    if (healthyNetworks.length === 0) return null;
+
+    const sortedByGas = healthyNetworks.sort((a, b) =>
+      parseInt(a.gasPrice || '0') - parseInt(b.gasPrice || '0')
+    );
+
+    const cheapest = sortedByGas[0];
+    const currentExpensive = networkHealth.find(h =>
+      h.congestion === 'high' || (h.gasPrice && parseInt(h.gasPrice) / 1e9 > 50)
+    );
+
+    if (currentExpensive && cheapest.networkId !== currentExpensive.networkId) {
+      return {
+        message: `Consider switching to ${cheapest.networkName} for lower gas fees`,
+        recommendedNetwork: cheapest.networkName,
+        savings: currentExpensive.gasPrice ?
+          ((parseInt(currentExpensive.gasPrice) - parseInt(cheapest.gasPrice)) / 1e9).toFixed(2) : '0'
+      };
+    }
+
+    return null;
+  }, [networkHealth]);
+
   if (loading) {
     return (
       <div className="space-y-4">
@@ -277,6 +304,25 @@ export const MultiChainDashboard: React.FC<MultiChainDashboardProps> = ({
                           Block: {health.lastBlock.toLocaleString()}
                         </p>
                       )}
+                      {health.connectionQuality && (
+                        <div className="flex items-center gap-1">
+                          <span className="text-sm text-gray-600">Connection:</span>
+                          <Chip
+                            color={
+                              health.connectionQuality === 'excellent' ? 'success' :
+                              health.connectionQuality === 'good' ? 'primary' :
+                              health.connectionQuality === 'poor' ? 'warning' : 'danger'
+                            }
+                            variant="dot"
+                            size="sm"
+                          >
+                            {health.connectionQuality.toUpperCase()}
+                          </Chip>
+                          {health.responseTime && (
+                            <span className="text-xs text-gray-500">({health.responseTime}ms)</span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -285,6 +331,31 @@ export const MultiChainDashboard: React.FC<MultiChainDashboardProps> = ({
           )}
         </CardBody>
       </Card>
+
+      {/* Network Recommendations */}
+      {networkRecommendations && (
+        <Card>
+          <CardHeader>
+            <h3 className="text-xl font-bold">Network Recommendations</h3>
+          </CardHeader>
+          <CardBody>
+            <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-blue-600 font-medium">💡 Suggestion:</span>
+                <Chip color="primary" variant="flat" size="sm">
+                  {networkRecommendations.recommendedNetwork}
+                </Chip>
+              </div>
+              <p className="text-sm text-blue-800">{networkRecommendations.message}</p>
+              {networkRecommendations.savings !== '0' && (
+                <p className="text-sm text-blue-600 mt-1">
+                  Potential savings: ~{networkRecommendations.savings} Gwei per transaction
+                </p>
+              )}
+            </div>
+          </CardBody>
+        </Card>
+      )}
 
       {/* DeFi Positions */}
       <DeFiPositions onRefresh={onRefresh} />
