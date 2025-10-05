@@ -11,6 +11,8 @@ export const TransactionBatcher: React.FC = () => {
   const [templates, setTemplates] = useState<TransactionTemplate[]>([]);
   const [showCreateBatch, setShowCreateBatch] = useState(false);
   const [showCreateTemplate, setShowCreateTemplate] = useState(false);
+  const [showScheduleBatch, setShowScheduleBatch] = useState(false);
+  const [selectedBatchForScheduling, setSelectedBatchForScheduling] = useState<string | null>(null);
 
   // Refresh data
   const refreshData = () => {
@@ -37,11 +39,11 @@ export const TransactionBatcher: React.FC = () => {
     }
   };
 
-  const handleCreateBatch = (transactions: Transaction[], description?: string) => {
-    const batchId = transactionBatcher.createBatch(transactions, description);
+  const handleCreateBatch = (transactions: Transaction[], description?: string, scheduledFor?: number) => {
+    const batchId = transactionBatcher.createBatch(transactions, description, scheduledFor);
     refreshData();
     setShowCreateBatch(false);
-    alert(`Batch created with ID: ${batchId}`);
+    alert(`Batch created with ID: ${batchId}${scheduledFor ? ' and scheduled for execution' : ''}`);
   };
 
   const handleCreateTemplate = (template: Omit<TransactionTemplate, 'id' | 'createdAt' | 'usageCount'>) => {
@@ -57,6 +59,38 @@ export const TransactionBatcher: React.FC = () => {
       // Add to a new batch or execute immediately
       handleCreateBatch([transaction], `From template: ${templates.find(t => t.id === templateId)?.name}`);
     }
+  };
+
+  const handleScheduleBatch = (batchId: string, executeAt: number) => {
+    // Update the batch with scheduling info
+    const batch = batches.find(b => b.id === batchId);
+    if (batch) {
+      batch.scheduledFor = executeAt;
+      batch.status = 'scheduled';
+      setBatches([...batches]);
+    }
+    setShowScheduleBatch(false);
+    setSelectedBatchForScheduling(null);
+  };
+
+  const handleCancelScheduledBatch = (batchId: string) => {
+    if (transactionBatcher.cancelScheduledBatch(batchId)) {
+      refreshData();
+      alert('Scheduled batch cancelled successfully');
+    }
+  };
+
+  const getNetworkName = (networkId: number): string => {
+    const names: { [key: number]: string } = {
+      1: 'Ethereum',
+      5: 'Goerli',
+      11155111: 'Sepolia',
+      8453: 'Base',
+      84532: 'Base Sepolia',
+      534352: 'Scroll',
+      534351: 'Scroll Sepolia',
+    };
+    return names[networkId] || 'Unknown';
   };
 
   return (
@@ -95,24 +129,50 @@ export const TransactionBatcher: React.FC = () => {
                     <div className="font-medium">{batch.description || `Batch ${batch.id.slice(-8)}`}</div>
                     <div className="text-sm text-gray-500">
                       Created {new Date(batch.createdAt).toLocaleString()}
+                      {batch.scheduledFor && ` • Scheduled ${new Date(batch.scheduledFor).toLocaleString()}`}
                       {batch.executedAt && ` • Executed ${new Date(batch.executedAt).toLocaleString()}`}
                     </div>
+                    {batch.networks && batch.networks.length > 1 && (
+                      <div className="text-xs text-blue-600 mt-1">
+                        Multi-chain: {batch.networks.map(id => getNetworkName(id)).join(', ')}
+                      </div>
+                    )}
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                       batch.status === 'completed' ? 'text-green-600 bg-green-100' :
                       batch.status === 'failed' ? 'text-red-600 bg-red-100' :
                       batch.status === 'executing' ? 'text-yellow-600 bg-yellow-100' :
+                      batch.status === 'scheduled' ? 'text-blue-600 bg-blue-100' :
                       'text-gray-600 bg-gray-100'
                     }`}>
                       {batch.status}
                     </span>
                     {batch.status === 'pending' && (
+                      <>
+                        <button
+                          onClick={() => handleExecuteBatch(batch.id)}
+                          className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+                        >
+                          Execute
+                        </button>
+                        <button
+                          onClick={() => {
+                            setSelectedBatchForScheduling(batch.id);
+                            setShowScheduleBatch(true);
+                          }}
+                          className="px-3 py-1 bg-green-600 text-white text-sm rounded hover:bg-green-700"
+                        >
+                          Schedule
+                        </button>
+                      </>
+                    )}
+                    {batch.status === 'scheduled' && (
                       <button
-                        onClick={() => handleExecuteBatch(batch.id)}
-                        className="px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700"
+                        onClick={() => handleCancelScheduledBatch(batch.id)}
+                        className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700"
                       >
-                        Execute
+                        Cancel
                       </button>
                     )}
                   </div>
@@ -173,6 +233,72 @@ export const TransactionBatcher: React.FC = () => {
           onCreate={handleCreateTemplate}
         />
       )}
+
+      {/* Schedule Batch Modal */}
+      {showScheduleBatch && selectedBatchForScheduling && (
+        <ScheduleBatchModal
+          batchId={selectedBatchForScheduling}
+          onClose={() => {
+            setShowScheduleBatch(false);
+            setSelectedBatchForScheduling(null);
+          }}
+          onSchedule={handleScheduleBatch}
+        />
+      )}
+    </div>
+  );
+};
+
+// Schedule Batch Modal Component
+const ScheduleBatchModal: React.FC<{
+  batchId: string;
+  onClose: () => void;
+  onSchedule: (batchId: string, executeAt: number) => void;
+}> = ({ batchId, onClose, onSchedule }) => {
+  const [executeAt, setExecuteAt] = useState('');
+
+  const handleSubmit = () => {
+    const executeTime = new Date(executeAt).getTime();
+    if (isNaN(executeTime) || executeTime <= Date.now()) {
+      alert('Please select a valid future date and time');
+      return;
+    }
+    onSchedule(batchId, executeTime);
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-6 max-w-md w-full">
+        <h3 className="text-lg font-semibold mb-4">Schedule Batch Execution</h3>
+
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Execution Date & Time</label>
+            <input
+              type="datetime-local"
+              value={executeAt}
+              onChange={(e) => setExecuteAt(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              min={new Date(Date.now() + 60000).toISOString().slice(0, 16)} // At least 1 minute from now
+            />
+          </div>
+        </div>
+
+        <div className="flex justify-end space-x-2 mt-6">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 text-gray-600 hover:text-gray-800"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={handleSubmit}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Schedule Batch
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
@@ -180,10 +306,12 @@ export const TransactionBatcher: React.FC = () => {
 // Create Batch Modal Component
 const CreateBatchModal: React.FC<{
   onClose: () => void;
-  onCreate: (transactions: Transaction[], description?: string) => void;
+  onCreate: (transactions: Transaction[], description?: string, scheduledFor?: number) => void;
 }> = ({ onClose, onCreate }) => {
   const [description, setDescription] = useState('');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [scheduledFor, setScheduledFor] = useState('');
+  const [enableScheduling, setEnableScheduling] = useState(false);
 
   const addTransaction = () => {
     const newTx: Transaction = {
@@ -212,7 +340,17 @@ const CreateBatchModal: React.FC<{
       alert('Please add at least one transaction');
       return;
     }
-    onCreate(transactions, description || undefined);
+
+    let scheduledTime: number | undefined;
+    if (enableScheduling && scheduledFor) {
+      scheduledTime = new Date(scheduledFor).getTime();
+      if (isNaN(scheduledTime) || scheduledTime <= Date.now()) {
+        alert('Please select a valid future date and time for scheduling');
+        return;
+      }
+    }
+
+    onCreate(transactions, description || undefined, scheduledTime);
   };
 
   return (
@@ -229,6 +367,29 @@ const CreateBatchModal: React.FC<{
             className="w-full px-3 py-2 border border-gray-300 rounded-md"
             placeholder="Batch description"
           />
+        </div>
+
+        <div className="mb-4">
+          <label className="flex items-center">
+            <input
+              type="checkbox"
+              checked={enableScheduling}
+              onChange={(e) => setEnableScheduling(e.target.checked)}
+              className="mr-2"
+            />
+            <span className="text-sm font-medium">Schedule batch execution</span>
+          </label>
+          {enableScheduling && (
+            <div className="mt-2">
+              <input
+                type="datetime-local"
+                value={scheduledFor}
+                onChange={(e) => setScheduledFor(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                min={new Date(Date.now() + 60000).toISOString().slice(0, 16)}
+              />
+            </div>
+          )}
         </div>
 
         <div className="mb-4">

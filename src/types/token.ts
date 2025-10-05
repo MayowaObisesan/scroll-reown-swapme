@@ -111,10 +111,12 @@ export interface Transaction {
 export interface TransactionBatch {
   id: string;
   transactions: Transaction[];
-  status: 'pending' | 'executing' | 'completed' | 'failed';
+  status: 'pending' | 'executing' | 'completed' | 'failed' | 'scheduled';
   createdAt: number;
   executedAt?: number;
+  scheduledFor?: number;
   description?: string;
+  networks: number[]; // Array of network IDs involved in the batch
 }
 
 export interface TransactionTemplate {
