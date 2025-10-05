@@ -20,3 +20,78 @@ export const getAlchemyNetworkForChain = (chainId: number): Network => {
       return Network.ETH_MAINNET;
   }
 };
+
+export interface NetworkConfig {
+  rpcs: string[];
+  name: string;
+}
+
+export const getNetworkConfig = (chainId: number): NetworkConfig => {
+  const configs: Record<number, NetworkConfig> = {
+    // Ethereum
+    1: {
+      rpcs: [
+        'https://eth-mainnet.alchemyapi.io/v2/...',
+        'https://mainnet.infura.io/v3/...',
+        'https://cloudflare-eth.com'
+      ],
+      name: 'Ethereum'
+    },
+    11155111: {
+      rpcs: [
+        'https://eth-sepolia.alchemyapi.io/v2/...',
+        'https://sepolia.infura.io/v3/...',
+        'https://rpc.sepolia.org'
+      ],
+      name: 'Sepolia'
+    },
+    // Base
+    8453: {
+      rpcs: [
+        'https://base-mainnet.g.alchemy.com/v2/...',
+        'https://mainnet.base.org',
+        'https://base.publicnode.com'
+      ],
+      name: 'Base'
+    },
+    84532: {
+      rpcs: [
+        'https://base-sepolia.g.alchemy.com/v2/...',
+        'https://sepolia.base.org',
+        'https://base-sepolia.publicnode.com'
+      ],
+      name: 'Base Sepolia'
+    },
+    // Scroll
+    534352: {
+      rpcs: [
+        'https://scroll-mainnet.alchemyapi.io/v2/...',
+        'https://rpc.scroll.io',
+        'https://scroll.publicnode.com'
+      ],
+      name: 'Scroll'
+    },
+    534351: {
+      rpcs: [
+        'https://scroll-sepolia.alchemyapi.io/v2/...',
+        'https://sepolia-rpc.scroll.io',
+        'https://scroll-sepolia.publicnode.com'
+      ],
+      name: 'Scroll Sepolia'
+    }
+  };
+  return configs[chainId] || configs[1]; // Default to Ethereum
+};
+
+export const getFallbackRpc = (chainId: number, currentRpc: string): string | null => {
+  const config = getNetworkConfig(chainId);
+  const currentIndex = config.rpcs.indexOf(currentRpc);
+  if (currentIndex === -1 || currentIndex === config.rpcs.length - 1) {
+    return null; // No fallback available
+  }
+  return config.rpcs[currentIndex + 1];
+};
+
+export const getPrimaryRpc = (chainId: number): string => {
+  return getNetworkConfig(chainId).rpcs[0];
+};

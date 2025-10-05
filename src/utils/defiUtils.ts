@@ -243,6 +243,30 @@ export class DeFiService {
     // Get TVL, volume, etc. for protocols
     return {}
   }
+
+  static async emergencyWithdraw(position: DeFiPosition, userAddress: Address): Promise<{ success: boolean; txHash?: string; error?: string }> {
+    // Emergency withdrawal logic - simplified implementation
+    // In a real app, this would interact with specific protocol contracts
+    try {
+      // This is a placeholder - real implementation would:
+      // 1. Check if emergency withdrawal is available for the protocol
+      // 2. Execute the appropriate contract calls
+      // 3. Handle slippage and fees appropriately
+
+      console.log(`Emergency withdrawing from ${position.protocol} position for ${userAddress}`);
+
+      // Simulate successful withdrawal
+      return {
+        success: true,
+        txHash: '0x' + Math.random().toString(16).substr(2, 64) // Mock tx hash
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: (error as Error).message
+      };
+    }
+  }
 }
 
 export default DeFiService
