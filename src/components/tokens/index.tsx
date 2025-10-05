@@ -2,49 +2,33 @@
 
 import React, { useEffect, useState } from "react";
 import { Alchemy, Network } from "alchemy-sdk";
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableColumn,
-  TableRow,
-  TableCell,
-  getKeyValue,
-} from "@nextui-org/table";
-import { Spinner } from "@nextui-org/spinner";
-import { useAccount } from "wagmi";
+import { useAccount, useChainId } from "wagmi";
+import { getAlchemyNetworkForChain } from "../../utils/networkUtils";
+import { TokenBalance } from "../../types/token";
+import { TokenBalanceTable } from "./TokenBalanceTable";
 
-const columns = [
-  {
-    key: "id",
-    label: "ID",
-  },
-  {
-    key: "name",
-    label: "NAME",
-  },
-  {
-    key: "balance",
-    label: "BALANCE",
-  },
-  {
-    key: "symbol",
-    label: "SYMBOL",
-  },
-];
-
+/**
+ * TokenBalances component displays a table of token balances for the connected wallet
+ *
+ * @component
+ * @example
+ * ```tsx
+ * <TokenBalances />
+ * ```
+ */
 const TokenBalances = () => {
-  const [balances, setBalances] = useState([]);
+  const [balances, setBalances] = useState<TokenBalance[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { address, isConnected } = useAccount();
+  const chainId = useChainId();
 
   useEffect(() => {
     const fetchBalances = async () => {
       try {
         const config = {
           apiKey: process.env.NEXT_PUBLIC_ALCHEMY_KEY,
-          network: Network.ETH_MAINNET,
+          network: getAlchemyNetworkForChain(chainId),
         };
         const alchemy = new Alchemy(config);
 
@@ -72,14 +56,17 @@ const TokenBalances = () => {
             balance = Number(balance.toFixed(2));
             return {
               id: index + 1,
+              contractAddress: token.contractAddress,
               name: metadata.name,
               symbol: metadata.symbol,
               balance,
+              decimals: metadata.decimals,
+              logo: metadata.logo,
             };
           })
         );
 
-        setBalances(enrichedBalances as unknown as any);
+        setBalances(enrichedBalances);
         setLoading(false);
       } catch (err) {
         setError((err as unknown as any).message);
@@ -107,31 +94,16 @@ const TokenBalances = () => {
 
   return (
     <div>
-      <Table aria-label="Example table with dynamic content">
-        <TableHeader columns={columns}>
-          {(column) => (
-            <TableColumn key={column.key}>{column.label}</TableColumn>
-          )}
-        </TableHeader>
-        <TableBody
-          items={balances}
-          isLoading={loading}
-          loadingContent={<Spinner label="Loading..." />}
-          emptyContent={
-            !address
-              ? "Connect your wallet to see your tokens"
-              : "No tokens to display."
-          }
-        >
-          {(item) => (
-            <TableRow key={(balances as any).id}>
-              {(columnKey) => (
-                <TableCell>{getKeyValue(item, columnKey)}</TableCell>
-              )}
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+      <TokenBalanceTable
+        tokens={balances}
+        loading={loading}
+        error={error}
+      />
+      <div aria-live="polite" className="sr-only">
+        {loading && "Loading token balances..."}
+        {!loading && balances.length > 0 && `Loaded ${balances.length} token balances`}
+        {!loading && balances.length === 0 && "No tokens found"}
+      </div>
       {/* <h2>Token Balances</h2> */}
       {/* {balances.length === 0 ? (
         <p>No tokens with non-zero balance found.</p>

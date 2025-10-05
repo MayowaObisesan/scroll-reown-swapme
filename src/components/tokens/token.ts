@@ -2,8 +2,8 @@
 import { Alchemy, Network } from "alchemy-sdk";
 
 const config = {
-  apiKey: "process.env.NEXT_PUBLIC_ALCHEMY_KEY",
-  network: Network.ETH_MAINNET,
+  apiKey: process.env.NEXT_PUBLIC_ALCHEMY_KEY,
+  network: Network.ETH_SEPOLIA, // Use Scroll Sepolia for testing, or determine based on chain
 };
 const alchemy = new Alchemy(config);
 

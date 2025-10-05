@@ -1,6 +1,7 @@
 "use client";
 
 import TokenBalances from "@/components/tokens";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import { shortenAddress } from "@/helpers";
 import { Button } from "@nextui-org/button";
 import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/card";
@@ -93,7 +94,9 @@ export default function AccountPage() {
         </div>
 
         <div className="flex-1 h-dvh overflow-y-auto p-4">
-          <TokenBalances />
+          <ErrorBoundary>
+            <TokenBalances />
+          </ErrorBoundary>
         </div>
       </section>
     </section>
