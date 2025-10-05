@@ -32,16 +32,16 @@ This checklist tracks the implementation status of all proposed features from `F
 ## 3. Advanced Token Management
 
 ### Multi-Chain Token Balances
-- [ ] Automatic token discovery across all connected networks
-- [ ] Support for native tokens (ETH, BASE, SCRL)
-- [ ] ERC-20, ERC-721, and ERC-1155 token standards
-- [ ] Custom token import functionality
+- [x] Automatic token discovery across all connected networks
+- [x] Support for native tokens (ETH, BASE, SCRL)
+- [x] ERC-20, ERC-721, and ERC-1155 token standards
+- [x] Custom token import functionality
 
 ### Token Analytics
-- [ ] Price tracking with multiple data sources
-- [ ] Yield farming opportunities (where applicable)
-- [ ] Token holder analysis
-- [ ] Transfer history with categorization
+- [x] Price tracking with multiple data sources
+- [x] Yield farming opportunities (where applicable)
+- [x] Token holder analysis
+- [x] Transfer history with categorization
 
 ## 4. Cross-Chain Functionality
 

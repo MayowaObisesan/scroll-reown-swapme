@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Table,
   TableHeader,
@@ -7,9 +7,16 @@ import {
   TableRow,
   TableCell,
   getKeyValue,
-} from "@nextui-org/table";
-import { TokenBalance } from "../../types/token";
-import {Spinner} from "@nextui-org/spinner";
+  Button,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  useDisclosure,
+} from "@nextui-org/react";
+import { TokenBalance, TokenStandard } from "../../types/token";
+import { Spinner } from "@nextui-org/spinner";
+import { TokenAnalytics } from "./TokenAnalytics";
 
 const columns = [
   {
@@ -29,12 +36,20 @@ const columns = [
     label: "SYMBOL",
   },
   {
+    key: "standard",
+    label: "STANDARD",
+  },
+  {
     key: "usdValue",
     label: "VALUE (USD)",
   },
   {
     key: "networkName",
     label: "NETWORK",
+  },
+  {
+    key: "analytics",
+    label: "ANALYTICS",
   },
 ];
 
@@ -51,37 +66,79 @@ export const TokenBalanceTable: React.FC<TokenBalanceTableProps> = ({
   error,
   onRefresh,
 }) => {
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [selectedToken, setSelectedToken] = useState<TokenBalance | null>(null);
+
+  const handleAnalyticsClick = (token: TokenBalance) => {
+    setSelectedToken(token);
+    onOpen();
+  };
+
   return (
-    <Table aria-label="Token balances table">
-      <TableHeader columns={columns}>
-        {(column) => (
-          <TableColumn key={column.key}>{column.label}</TableColumn>
-        )}
-      </TableHeader>
-      <TableBody
-        items={tokens}
-        isLoading={loading}
-        loadingContent={<Spinner label="Loading..." />}
-        emptyContent={
-          error
-            ? `Error: ${error}`
-            : "No tokens to display."
-        }
+    <>
+      <Table aria-label="Token balances table">
+        <TableHeader columns={columns}>
+          {(column) => (
+            <TableColumn key={column.key}>{column.label}</TableColumn>
+          )}
+        </TableHeader>
+        <TableBody
+          items={tokens}
+          isLoading={loading}
+          loadingContent={<Spinner label="Loading..." />}
+          emptyContent={
+            error
+              ? `Error: ${error}`
+              : "No tokens to display."
+          }
+        >
+          {(item) => (
+            <TableRow key={item.id}>
+              {(columnKey) => (
+                <TableCell>
+                  {columnKey === "usdValue"
+                    ? item.usdValue
+                      ? `$${item.usdValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}`
+                      : "-"
+                    : columnKey === "standard"
+                    ? item.standard.toUpperCase()
+                    : columnKey === "analytics"
+                    ? (
+                      <Button
+                        size="sm"
+                        variant="flat"
+                        onPress={() => handleAnalyticsClick(item)}
+                      >
+                        View
+                      </Button>
+                    )
+                    : getKeyValue(item, columnKey)}
+                </TableCell>
+              )}
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+
+      <Modal
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        size="4xl"
+        scrollBehavior="inside"
       >
-        {(item) => (
-          <TableRow key={item.id}>
-            {(columnKey) => (
-              <TableCell>
-                {columnKey === "usdValue"
-                  ? item.usdValue
-                    ? `$${item.usdValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}`
-                    : "-"
-                  : getKeyValue(item, columnKey)}
-              </TableCell>
-            )}
-          </TableRow>
-        )}
-      </TableBody>
-    </Table>
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                Token Analytics
+              </ModalHeader>
+              <ModalBody>
+                {selectedToken && <TokenAnalytics token={selectedToken} />}
+              </ModalBody>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+    </>
   );
 };

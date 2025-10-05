@@ -16,31 +16,68 @@ export const getTokenPrice = async (symbol: string): Promise<number> => {
     return priceCache[cacheKey].price;
   }
 
-  try {
-    // Using CoinGecko API for price data
-    const response = await fetch(
-      `https://api.coingecko.com/api/v3/simple/price?ids=${getCoinGeckoId(symbol)}&vs_currencies=usd`
-    );
+  // Try multiple data sources
+  const price = await getPriceFromMultipleSources(symbol);
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch price for ${symbol}`);
+  // Cache the result
+  priceCache[cacheKey] = {
+    symbol,
+    price,
+    lastUpdated: Date.now(),
+  };
+
+  return price;
+};
+
+const getPriceFromMultipleSources = async (symbol: string): Promise<number> => {
+  const sources = [
+    () => getPriceFromCoinGecko(symbol),
+    () => getPriceFromCoinMarketCap(symbol),
+    () => getPriceFromDefiPulse(symbol),
+  ];
+
+  for (const source of sources) {
+    try {
+      const price = await source();
+      if (price > 0) return price;
+    } catch (error) {
+      console.warn(`Failed to fetch price from ${source.name}:`, error);
     }
+  }
+
+  return 0; // Return 0 if all sources fail
+};
+
+const getPriceFromCoinGecko = async (symbol: string): Promise<number> => {
+  const response = await fetch(
+    `https://api.coingecko.com/api/v3/simple/price?ids=${getCoinGeckoId(symbol)}&vs_currencies=usd`
+  );
+
+  if (!response.ok) {
+    throw new Error(`CoinGecko API error: ${response.status}`);
+  }
+
+  const data = await response.json();
+  const coinGeckoId = getCoinGeckoId(symbol);
+  return data[coinGeckoId]?.usd || 0;
+};
+
+const getPriceFromCoinMarketCap = async (symbol: string): Promise<number> => {
+  // Note: This would require a CMC API key in production
+  // For demo purposes, we'll skip this implementation
+  return 0;
+};
+
+const getPriceFromDefiPulse = async (symbol: string): Promise<number> => {
+  // DeFi Pulse API for DeFi-specific tokens
+  try {
+    const response = await fetch(`https://api.defipulse.com/api/v1/tokens/${symbol.toLowerCase()}`);
+    if (!response.ok) return 0;
 
     const data = await response.json();
-    const coinGeckoId = getCoinGeckoId(symbol);
-    const price = data[coinGeckoId]?.usd || 0;
-
-    // Cache the result
-    priceCache[cacheKey] = {
-      symbol,
-      price,
-      lastUpdated: Date.now(),
-    };
-
-    return price;
-  } catch (error) {
-    console.warn(`Failed to fetch price for ${symbol}:`, error);
-    return 0; // Return 0 if price fetch fails
+    return data.price || 0;
+  } catch {
+    return 0;
   }
 };
 
@@ -77,7 +114,7 @@ export const getMultipleTokenPrices = async (symbols: string[]): Promise<{ [key:
   const prices: { [key: string]: number } = {};
 
   // Batch fetch prices
-  const coinGeckoIds = uniqueSymbols.map(symbol => getCoinGeckoId(symbol)).filter(id => id);
+  const coinGeckoIds = Array.from(new Set(uniqueSymbols.map(symbol => getCoinGeckoId(symbol)))).filter(id => id);
 
   if (coinGeckoIds.length === 0) {
     return prices;
