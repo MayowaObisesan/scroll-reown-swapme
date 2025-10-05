@@ -162,22 +162,22 @@ This checklist tracks the implementation status of all proposed features from `F
 ## Implementation Roadmap Milestones
 
 ### Phase 1: Core Multi-Chain Support (2-3 weeks)
-- [ ] Add Base and Ethereum networks to wagmi config
-- [ ] Update networkUtils.ts for all supported chains
-- [ ] Implement dynamic network switching UI
-- [ ] Basic multi-chain token balance display
+- [x] Add Base and Ethereum networks to wagmi config
+- [x] Update networkUtils.ts for all supported chains
+- [x] Implement dynamic network switching UI
+- [x] Basic multi-chain token balance display
 
 ### Phase 2: Cross-Chain Features (3-4 weeks)
-- [ ] Bridge integration implementation
-- [ ] Cross-chain transaction history
-- [ ] Unified portfolio dashboard
-- [ ] Basic DEX swapping support
+- [x] Bridge integration implementation
+- [x] Cross-chain transaction history
+- [x] Unified portfolio dashboard
+- [x] Basic DEX swapping support
 
 ### Phase 3: DeFi Integrations (4-5 weeks)
-- [ ] Ethereum DeFi protocols (Uniswap, Aave)
-- [ ] Base ecosystem integrations
-- [ ] Scroll-specific dApps
-- [ ] Yield farming tracking
+- [x] Ethereum DeFi protocols (Uniswap, Aave)
+- [x] Base ecosystem integrations
+- [x] Scroll-specific dApps
+- [x] Yield farming tracking
 
 ### Phase 4: Advanced Features (3-4 weeks)
 - [ ] NFT portfolio management

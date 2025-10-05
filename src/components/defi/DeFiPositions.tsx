@@ -50,6 +50,8 @@ export const DeFiPositions: React.FC<DeFiPositionsProps> = ({ onRefresh }) => {
         return <TrendingUp className="w-4 h-4" />;
       case 'staking':
         return <Percent className="w-4 h-4" />;
+      case 'farming':
+        return <TrendingUp className="w-4 h-4" />;
       default:
         return <DollarSign className="w-4 h-4" />;
     }
