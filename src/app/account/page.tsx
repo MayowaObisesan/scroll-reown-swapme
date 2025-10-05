@@ -1,11 +1,13 @@
 "use client";
 
 import TokenBalances from "@/components/tokens";
+import { TransactionHistory, GasAnalytics, TransactionBatcher } from "@/components/transactions";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { shortenAddress } from "@/helpers";
 import { Button } from "@nextui-org/button";
 import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/card";
 import { Divider } from "@nextui-org/divider";
+import { Tabs, Tab } from "@nextui-org/tabs";
 import { Address } from "viem";
 import { useAccount, useBalance, useChainId } from "wagmi";
 import { Skeleton } from "@nextui-org/skeleton";
@@ -100,7 +102,20 @@ export default function AccountPage() {
 
         <div className="flex-1 h-dvh overflow-y-auto p-4">
           <ErrorBoundary>
-            <TokenBalances />
+            <Tabs aria-label="Account sections" className="w-full">
+              <Tab key="tokens" title="Tokens">
+                <TokenBalances />
+              </Tab>
+              <Tab key="transactions" title="Transactions">
+                <div className="space-y-6">
+                  <TransactionHistory />
+                  <GasAnalytics />
+                </div>
+              </Tab>
+              <Tab key="batch" title="Batch & Templates">
+                <TransactionBatcher />
+              </Tab>
+            </Tabs>
           </ErrorBoundary>
         </div>
       </section>
