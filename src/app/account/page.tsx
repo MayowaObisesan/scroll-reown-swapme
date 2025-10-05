@@ -2,6 +2,8 @@
 
 import TokenBalances from "@/components/tokens";
 import { TransactionHistory, GasAnalytics, TransactionBatcher } from "@/components/transactions";
+import { NFTPortfolio } from "@/components/nft";
+import { SecurityDashboard } from "@/components/security";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { shortenAddress } from "@/helpers";
 import { Button } from "@nextui-org/button";
@@ -106,6 +108,9 @@ export default function AccountPage() {
               <Tab key="tokens" title="Tokens">
                 <TokenBalances />
               </Tab>
+              <Tab key="nfts" title="NFTs">
+                <NFTPortfolio />
+              </Tab>
               <Tab key="transactions" title="Transactions">
                 <div className="space-y-6">
                   <TransactionHistory />
@@ -114,6 +119,9 @@ export default function AccountPage() {
               </Tab>
               <Tab key="batch" title="Batch & Templates">
                 <TransactionBatcher />
+              </Tab>
+              <Tab key="security" title="Security">
+                <SecurityDashboard />
               </Tab>
             </Tabs>
           </ErrorBoundary>
