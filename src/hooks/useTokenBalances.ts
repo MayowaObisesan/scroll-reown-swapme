@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Alchemy, Network } from 'alchemy-sdk';
 import { getAlchemyNetworkForChain } from '../utils/networkUtils';
-import { TokenBalance } from '../types/token';
+import { TokenBalance, TokenStandard } from '../types/token';
 import { withRetry } from '../utils/retryWrapper';
 import { useChainId } from 'wagmi';
 
@@ -27,11 +27,15 @@ const fetchTokenBalances = async (address?: string, chainId?: number): Promise<T
       return {
         id: index + 1,
         contractAddress: token.contractAddress,
-        name: metadata.name,
-        symbol: metadata.symbol,
+        name: metadata.name || 'Unknown Token',
+        symbol: metadata.symbol || 'UNK',
         balance,
-        decimals: metadata.decimals,
-        logo: metadata.logo,
+        decimals: metadata.decimals || 18,
+        logo: metadata.logo || undefined,
+        networkId: chainId || 1,
+        networkName: 'Unknown', // Will be set by caller
+        usdValue: 0, // Will be calculated later
+        standard: TokenStandard.ERC20,
       };
     })
   );
