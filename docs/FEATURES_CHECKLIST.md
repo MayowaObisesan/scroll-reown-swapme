@@ -82,15 +82,15 @@ This checklist tracks the implementation status of all proposed features from `F
 ## 6. Transaction Management
 
 ### Enhanced Transaction History
-- [ ] Unified transaction feed across all networks
-- [ ] Categorization (transfers, swaps, staking, etc.)
-- [ ] Transaction status tracking with real-time updates
-- [ ] Gas usage analytics and optimization tips
+- [x] Unified transaction feed across all networks
+- [x] Categorization (transfers, swaps, staking, etc.)
+- [x] Transaction status tracking with real-time updates
+- [x] Gas usage analytics and optimization tips
 
 ### Batch Transactions
-- [ ] Multi-chain transaction batching
-- [ ] Scheduled transactions for optimal gas timing
-- [ ] Transaction templates for recurring operations
+- [x] Multi-chain transaction batching
+- [x] Scheduled transactions for optimal gas timing
+- [x] Transaction templates for recurring operations
 
 ## 7. Security and Risk Management
 
