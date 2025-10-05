@@ -7,12 +7,13 @@ import { Button } from "@nextui-org/button";
 import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/card";
 import { Divider } from "@nextui-org/divider";
 import { Address } from "viem";
-import { useAccount, useBalance } from "wagmi";
+import { useAccount, useBalance, useChainId } from "wagmi";
 import { Skeleton } from "@nextui-org/skeleton";
 import { SearchIcon } from "@/components/icons";
 
 export default function AccountPage() {
   const { address } = useAccount();
+  const chainId = useChainId();
   const { data: balance } = useBalance({
     address,
   });
@@ -75,6 +76,10 @@ export default function AccountPage() {
                         ({balance?.decimals} decimals)
                       </div>
                     </div>
+                  </div>
+                  <div className="flex flex-row items-center justify-center">
+                    <span className="grow shrink-0">Network: </span>
+                    <span className="shrink grow-0">Chain ID {chainId}</span>
                   </div>
                 </section>
 

@@ -55,6 +55,7 @@ export const Navbar = () => {
         </NavbarItem> */}
         <NavbarItem className="flex flex-row items-center gap-x-4">
           <ThemeSwitch />
+          <w3m-network-button />
           <ConnectButton />
         </NavbarItem>
       </NavbarContent>
