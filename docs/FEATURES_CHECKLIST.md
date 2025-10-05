@@ -46,18 +46,18 @@ This checklist tracks the implementation status of all proposed features from `F
 ## 4. Cross-Chain Functionality
 
 ### Bridge Integration
-- [ ] Native support for official bridges: Scroll Bridge (Ethereum ↔ Scroll)
-- [ ] Native support for official bridges: Base Bridge (Ethereum ↔ Base)
-- [ ] Native support for official bridges: Third-party bridges (Hop, Across, etc.)
-- [ ] Bridge transaction tracking and status updates
-- [ ] Gas fee optimization for cross-chain transfers
+- [x] Native support for official bridges: Scroll Bridge (Ethereum ↔ Scroll)
+- [x] Native support for official bridges: Base Bridge (Ethereum ↔ Base)
+- [x] Native support for official bridges: Third-party bridges (Hop, Across, etc.)
+- [x] Bridge transaction tracking and status updates
+- [x] Gas fee optimization for cross-chain transfers
 
 ### Cross-Chain Swapping
-- [ ] Integration with DEX aggregators: 1inch on Ethereum
-- [ ] Integration with DEX aggregators: Scroll's native DEXes
-- [ ] Integration with DEX aggregators: BaseSwap on Base
-- [ ] Multi-hop routing for complex swaps
-- [ ] Slippage protection and price impact warnings
+- [x] Integration with DEX aggregators: 1inch on Ethereum
+- [x] Integration with DEX aggregators: Scroll's native DEXes
+- [x] Integration with DEX aggregators: BaseSwap on Base
+- [x] Multi-hop routing for complex swaps
+- [x] Slippage protection and price impact warnings
 
 ## 5. DeFi Protocol Integrations
 
