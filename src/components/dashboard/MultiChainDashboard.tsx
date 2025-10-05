@@ -11,6 +11,7 @@ import { TokenBalance } from "../../types/token";
 import { TokenBalanceTable } from "../tokens/TokenBalanceTable";
 import { getMultipleNetworkHealth, NetworkHealth } from "../../utils/networkHealthUtils";
 import { networks } from "../../config/wagmi";
+import { DeFiPositions } from "../defi";
 
 interface MultiChainDashboardProps {
   balances: TokenBalance[];
@@ -284,6 +285,9 @@ export const MultiChainDashboard: React.FC<MultiChainDashboardProps> = ({
           )}
         </CardBody>
       </Card>
+
+      {/* DeFi Positions */}
+      <DeFiPositions onRefresh={onRefresh} />
 
       {/* Network Errors */}
       {Object.keys(portfolioSummary.networkErrors).length > 0 && (
