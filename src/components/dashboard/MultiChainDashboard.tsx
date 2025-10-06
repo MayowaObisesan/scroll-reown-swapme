@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useEffect, useState } from "react";
+import React, { useMemo, useEffect, useState, Suspense, lazy } from "react";
 import { Card, CardHeader, CardBody } from "@nextui-org/card";
 import { Chip } from "@nextui-org/chip";
 import { Progress } from "@nextui-org/progress";
@@ -11,7 +11,9 @@ import { TokenBalance } from "../../types/token";
 import { TokenBalanceTable } from "../tokens/TokenBalanceTable";
 import { getMultipleNetworkHealth, NetworkHealth } from "../../utils/networkHealthUtils";
 import { networks } from "../../config/wagmi";
-import { DeFiPositions } from "../defi";
+
+// Lazy load DeFi integrations for better performance
+const DeFiPositions = lazy(() => import("../defi").then(module => ({ default: module.DeFiPositions })));
 
 interface MultiChainDashboardProps {
   balances: TokenBalance[];
@@ -358,7 +360,17 @@ export const MultiChainDashboard: React.FC<MultiChainDashboardProps> = ({
       )}
 
       {/* DeFi Positions */}
-      <DeFiPositions onRefresh={onRefresh} />
+      <Suspense fallback={
+        <Card>
+          <CardBody>
+            <div className="flex justify-center">
+              <Spinner label="Loading DeFi integrations..." />
+            </div>
+          </CardBody>
+        </Card>
+      }>
+        <DeFiPositions onRefresh={onRefresh} />
+      </Suspense>
 
       {/* Network Errors */}
       {Object.keys(portfolioSummary.networkErrors).length > 0 && (
