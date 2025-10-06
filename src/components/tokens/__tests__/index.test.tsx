@@ -1,13 +1,8 @@
 import { render, screen } from '@testing-library/react'
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import TokenBalances from '../index'
+import '../../../test/mocks/wagmi'
 import { mockUseAccount, mockUseChainId } from '../../../test/mocks/wagmi'
-
-// Mock the wagmi hooks
-vi.mock('wagmi', () => ({
-  useAccount: mockUseAccount,
-  useChainId: mockUseChainId,
-}))
 
 describe('TokenBalances', () => {
   it('renders loading state when wallet is connected', () => {

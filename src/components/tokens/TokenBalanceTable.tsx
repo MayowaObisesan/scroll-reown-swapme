@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, Suspense, lazy } from "react";
 import {
   Table,
   TableHeader,
@@ -16,7 +16,9 @@ import {
 } from "@nextui-org/react";
 import { TokenBalance, TokenStandard } from "../../types/token";
 import { Spinner } from "@nextui-org/spinner";
-import { TokenAnalytics } from "./TokenAnalytics";
+
+// Lazy load TokenAnalytics for better performance
+const TokenAnalytics = lazy(() => import("./TokenAnalytics").then(module => ({ default: module.TokenAnalytics })));
 
 const columns = [
   {
@@ -133,7 +135,9 @@ export const TokenBalanceTable: React.FC<TokenBalanceTableProps> = ({
                 Token Analytics
               </ModalHeader>
               <ModalBody>
-                {selectedToken && <TokenAnalytics token={selectedToken} />}
+                <Suspense fallback={<Spinner label="Loading analytics..." />}>
+                  {selectedToken && <TokenAnalytics token={selectedToken} />}
+                </Suspense>
               </ModalBody>
             </>
           )}
