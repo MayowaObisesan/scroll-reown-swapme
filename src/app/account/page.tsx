@@ -6,16 +6,14 @@ import { NFTPortfolio } from "@/components/nft";
 import { SecurityDashboard } from "@/components/security";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { shortenAddress } from "@/helpers";
-import { Button } from "@nextui-org/button";
-import { Card, CardHeader, CardBody, CardFooter } from "@nextui-org/card";
-import { Divider } from "@nextui-org/divider";
-import { Tabs, Tab } from "@nextui-org/tabs";
+import { Card, CardHeader, CardBody } from "@heroui/card";
+import { Divider } from "@heroui/divider";
+import { Tabs, Tab } from "@heroui/tabs";
 import { Address } from "viem";
 import { useAccount, useBalance, useChainId } from "wagmi";
-import { Skeleton } from "@nextui-org/skeleton";
-import { SearchIcon } from "@/components/icons";
+import { Skeleton } from "@heroui/skeleton";
 
-export default function AccountPage() {
+export default function AccountPage(): JSX.Element {
   const { address } = useAccount();
   const chainId = useChainId();
   const { data: balance } = useBalance({

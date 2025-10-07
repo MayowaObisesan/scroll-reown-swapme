@@ -65,13 +65,12 @@ export const NFTPortfolio: React.FC = () => {
                     nft.tokenId
                   );
 
-                  image = metadata.media?.[0]?.thumbnail ||
-                         metadata.media?.[0]?.gateway ||
-                         metadata.rawMetadata?.image ||
-                         '';
+                  image = (metadata as any).rawMetadata?.image ||
+                          metadata.image ||
+                          '';
 
                   description = metadata.description || '';
-                  attributes = metadata.rawMetadata?.attributes || [];
+                  attributes = (metadata as any).rawMetadata?.attributes || [];
                 } catch (error) {
                   console.warn(`Failed to fetch metadata for ${nft.contract.address}:${nft.tokenId}`);
                 }
@@ -80,7 +79,9 @@ export const NFTPortfolio: React.FC = () => {
                 let floorPrice;
                 try {
                   const floorPriceData = await alchemy.nft.getFloorPrice(nft.contract.address);
-                  floorPrice = floorPriceData.openSea?.floorPrice;
+                  if ('openSea' in floorPriceData && floorPriceData.openSea && 'floorPrice' in floorPriceData.openSea) {
+                    floorPrice = (floorPriceData.openSea as any).floorPrice;
+                  }
                 } catch (error) {
                   // Floor price not available
                 }

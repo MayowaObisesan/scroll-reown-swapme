@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// In-memory storage for webhook registrations (in production, use a database)
-const webhookRegistrations = new Map<string, {
+interface WebhookRegistration {
   url: string;
   secret: string;
   events: string[];
@@ -9,20 +8,25 @@ const webhookRegistrations = new Map<string, {
   networks: number[];
   createdAt: number;
   lastTriggered?: number;
-}>();
+}
 
-// Store recent webhook deliveries for debugging
-const webhookLogs: Array<{
+interface WebhookLog {
   id: string;
   webhookId: string;
   event: string;
-  payload: any;
+  payload: Record<string, unknown>;
   status: 'success' | 'failed';
   timestamp: number;
   error?: string;
-}> = [];
+}
 
-export async function POST(request: NextRequest) {
+// In-memory storage for webhook registrations (in production, use a database)
+const webhookRegistrations = new Map<string, WebhookRegistration>();
+
+// Store recent webhook deliveries for debugging
+const webhookLogs: WebhookLog[] = [];
+
+export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const body = await request.json();
     const { event, data, webhookId } = body;
@@ -51,7 +55,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   const { searchParams } = new URL(request.url);
   const action = searchParams.get('action');
 
@@ -83,13 +87,13 @@ export async function GET(request: NextRequest) {
   );
 }
 
-async function handleWebhookRegistration(body: any) {
+async function handleWebhookRegistration(body: Record<string, unknown>): Promise<NextResponse> {
   const { url, secret, events, addresses, networks, action } = body;
 
   if (action === 'register') {
-    if (!url || !events || !Array.isArray(events)) {
+    if (!url || typeof url !== 'string' || !events || !Array.isArray(events)) {
       return NextResponse.json(
-        { error: 'Missing required fields: url, events' },
+        { error: 'Missing required fields: url (string), events (array)' },
         { status: 400 }
       );
     }
@@ -98,10 +102,10 @@ async function handleWebhookRegistration(body: any) {
 
     webhookRegistrations.set(webhookId, {
       url,
-      secret: secret || '',
+      secret: typeof secret === 'string' ? secret : '',
       events,
-      addresses: addresses || [],
-      networks: networks || [],
+      addresses: Array.isArray(addresses) ? addresses : [],
+      networks: Array.isArray(networks) ? networks : [],
       createdAt: Date.now(),
     });
 
@@ -114,7 +118,7 @@ async function handleWebhookRegistration(body: any) {
 
   if (action === 'unregister') {
     const { webhookId } = body;
-    if (!webhookId || !webhookRegistrations.has(webhookId)) {
+    if (!webhookId || typeof webhookId !== 'string' || !webhookRegistrations.has(webhookId)) {
       return NextResponse.json(
         { error: 'Invalid webhook ID' },
         { status: 400 }
@@ -130,7 +134,7 @@ async function handleWebhookRegistration(body: any) {
 
   if (action === 'test') {
     const { webhookId } = body;
-    if (!webhookId || !webhookRegistrations.has(webhookId)) {
+    if (!webhookId || typeof webhookId !== 'string' || !webhookRegistrations.has(webhookId)) {
       return NextResponse.json(
         { error: 'Invalid webhook ID' },
         { status: 400 }
@@ -182,7 +186,7 @@ async function handleWebhookRegistration(body: any) {
   );
 }
 
-async function handleWebhookDelivery(webhookId: string, event: string, data: any) {
+async function handleWebhookDelivery(webhookId: string, event: string, data: Record<string, unknown>): Promise<NextResponse> {
   // This would be called internally to deliver webhooks
   const registration = webhookRegistrations.get(webhookId);
   if (!registration) {
@@ -201,9 +205,9 @@ async function handleWebhookDelivery(webhookId: string, event: string, data: any
   }
 
   // Check address filter
-  if (registration.addresses.length > 0 && data.address) {
+  if (registration.addresses.length > 0 && data.address && typeof data.address === 'string') {
     const addressMatch = registration.addresses.some(addr =>
-      addr.toLowerCase() === data.address.toLowerCase()
+      addr.toLowerCase() === (data.address as string).toLowerCase()
     );
     if (!addressMatch) {
       return NextResponse.json({
@@ -214,7 +218,7 @@ async function handleWebhookDelivery(webhookId: string, event: string, data: any
   }
 
   // Check network filter
-  if (registration.networks.length > 0 && data.networkId) {
+  if (registration.networks.length > 0 && data.networkId && typeof data.networkId === 'number') {
     if (!registration.networks.includes(data.networkId)) {
       return NextResponse.json({
         success: true,
@@ -264,10 +268,10 @@ async function handleWebhookDelivery(webhookId: string, event: string, data: any
 function logWebhookDelivery(
   webhookId: string,
   event: string,
-  payload: any,
+  payload: Record<string, unknown>,
   success: boolean,
   error?: string
-) {
+): void {
   webhookLogs.push({
     id: `log_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     webhookId,
@@ -285,11 +289,11 @@ function logWebhookDelivery(
 }
 
 // Function to trigger webhooks for transaction events (called from transaction processing)
-export async function triggerTransactionWebhook(
+async function triggerTransactionWebhook(
   event: string,
-  transactionData: any
-) {
-  const promises = Array.from(webhookRegistrations.entries()).map(async ([webhookId, registration]) => {
+  transactionData: Record<string, unknown>
+): Promise<void> {
+  const promises = Array.from(webhookRegistrations.entries()).map(async ([webhookId]) => {
     try {
       await fetch(`${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/api/webhooks/transactions`, {
         method: 'POST',

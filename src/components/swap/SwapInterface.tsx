@@ -1,11 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Button } from '@nextui-org/button'
-import { Input } from '@nextui-org/input'
-import { Select, SelectItem } from '@nextui-org/select'
-import { Card, CardBody, CardHeader } from '@nextui-org/card'
-import { Chip } from '@nextui-org/chip'
+import { Button } from "@heroui/button"
+import { Input } from "@heroui/input"
+import { Select, SelectItem } from "@heroui/select"
+import { Card, CardBody, CardHeader } from "@heroui/card"
+import { Chip } from "@heroui/chip"
 import { useAccount, useWriteContract } from 'wagmi'
 import SwapService, { SwapQuote } from '../../utils/swapUtils'
 
@@ -132,11 +132,11 @@ export default function SwapInterface() {
         <Select
           label="DEX"
           placeholder="Select DEX"
-          value={dex}
-          onChange={(e) => setDex(e.target.value)}
+          selectedKeys={dex ? [dex] : []}
+          onSelectionChange={(keys) => setDex(Array.from(keys)[0] as string)}
         >
           {DEX_OPTIONS.map((option) => (
-            <SelectItem key={option.key} value={option.key}>
+            <SelectItem key={option.key}>
               {option.label}
             </SelectItem>
           ))}
@@ -146,11 +146,11 @@ export default function SwapInterface() {
           <Select
             label="From Token"
             placeholder="Select token"
-            value={fromToken}
-            onChange={(e) => setFromToken(e.target.value)}
+            selectedKeys={fromToken ? [fromToken] : []}
+            onSelectionChange={(keys) => setFromToken(Array.from(keys)[0] as string)}
           >
             {SUPPORTED_TOKENS.map((token) => (
-              <SelectItem key={token.address} value={token.address}>
+              <SelectItem key={token.address}>
                 {token.symbol}
               </SelectItem>
             ))}
@@ -159,11 +159,11 @@ export default function SwapInterface() {
           <Select
             label="To Token"
             placeholder="Select token"
-            value={toToken}
-            onChange={(e) => setToToken(e.target.value)}
+            selectedKeys={toToken ? [toToken] : []}
+            onSelectionChange={(keys) => setToToken(Array.from(keys)[0] as string)}
           >
             {SUPPORTED_TOKENS.map((token) => (
-              <SelectItem key={token.address} value={token.address}>
+              <SelectItem key={token.address}>
                 {token.symbol}
               </SelectItem>
             ))}
