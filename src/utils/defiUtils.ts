@@ -36,8 +36,8 @@ export interface DeFiPosition {
 // Uniswap V3 Integration
 export class UniswapV3Service {
   private static readonly SUBGRAPH_URLS = {
-    1: 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3', // Ethereum
-    8453: 'https://api.studio.thegraph.com/query/24660/uniswap-v3-base/version/latest', // Base (if available)
+    1: process.env.NEXT_PUBLIC_UNISWAP_V3_SUBGRAPH_URL || 'https://api.thegraph.com/subgraphs/name/uniswap/uniswap-v3', // Ethereum
+    8453: process.env.NEXT_PUBLIC_UNISWAP_V3_BASE_SUBGRAPH_URL || 'https://api.studio.thegraph.com/query/24660/uniswap-v3-base/version/latest', // Base (if available)
   }
 
   static async getLiquidityPositions(owner: Address, networkId: number = 1): Promise<LiquidityPosition[]> {
@@ -243,7 +243,7 @@ export class CurveService {
 
 // Base Ecosystem Protocols
 export class BaseDeFiService {
-  private static readonly AERODROME_SUBGRAPH = 'https://api.studio.thegraph.com/query/24660/aerodrome/version/latest'
+  private static readonly AERODROME_SUBGRAPH = process.env.NEXT_PUBLIC_AERODROME_SUBGRAPH_URL || 'https://api.studio.thegraph.com/query/24660/aerodrome/version/latest'
 
   static async getAerodromePositions(user: Address): Promise<LiquidityPosition[]> {
     // Aerodrome is Base's DEX - similar to Uniswap V3
@@ -281,7 +281,7 @@ export class BaseDeFiService {
       const response = await fetch(this.AERODROME_SUBGRAPH, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query, variables: { owner } })
+        body: JSON.stringify({ query, variables: { owner: user } })
       })
 
       if (!response.ok) return [];
@@ -370,7 +370,7 @@ export class BaseDeFiService {
 
 // Scroll Ecosystem Protocols
 export class ScrollDeFiService {
-  private static readonly SCROLL_SUBGRAPH = 'https://api.studio.thegraph.com/query/24660/scroll-dex/version/latest'
+  private static readonly SCROLL_SUBGRAPH = process.env.NEXT_PUBLIC_SCROLL_SUBGRAPH_URL || 'https://api.studio.thegraph.com/query/24660/scroll-dex/version/latest'
 
   static async getEcosystemPositions(user: Address): Promise<DeFiPosition[]> {
     const positions: DeFiPosition[] = []
@@ -414,7 +414,7 @@ export class ScrollDeFiService {
       const response = await fetch(this.SCROLL_SUBGRAPH, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query, variables: { owner } })
+        body: JSON.stringify({ query, variables: { owner: user } })
       })
 
       if (!response.ok) return [];
@@ -524,11 +524,46 @@ export class DeFiService {
           const ethYieldPositions = await this.getYieldFarmingPositions(user, networkId)
 
           allPositions.push(
-            ...uniswapPositions.map(pos => ({ ...pos, type: 'liquidity' as const })),
-            ...aavePositions.map(pos => ({ ...pos, type: 'lending' as const })),
-            ...compoundPositions.map(pos => ({ ...pos, type: 'lending' as const })),
-            ...curvePositions.map(pos => ({ ...pos, type: 'liquidity' as const })),
-            ...ethYieldPositions.map(pos => ({ ...pos, type: pos.type as 'farming' | 'staking' }))
+            ...uniswapPositions.map(pos => ({
+              type: 'liquidity' as const,
+              protocol: pos.protocol,
+              networkId: pos.networkId,
+              value: '0', // Would calculate based on token prices
+              apr: pos.apr,
+              details: pos
+            })),
+            ...aavePositions.map(pos => ({
+              type: 'lending' as const,
+              protocol: pos.protocol,
+              networkId: pos.networkId,
+              value: '0', // Would calculate based on position value
+              apr: pos.apr,
+              details: pos
+            })),
+            ...compoundPositions.map(pos => ({
+              type: 'lending' as const,
+              protocol: pos.protocol,
+              networkId: pos.networkId,
+              value: '0', // Would calculate based on position value
+              apr: pos.apr,
+              details: pos
+            })),
+            ...curvePositions.map(pos => ({
+              type: 'liquidity' as const,
+              protocol: pos.protocol,
+              networkId: pos.networkId,
+              value: '0', // Would calculate based on token prices
+              apr: pos.apr,
+              details: pos
+            })),
+            ...ethYieldPositions.map(pos => ({
+              type: pos.type as 'farming' | 'staking',
+              protocol: pos.protocol,
+              networkId: pos.networkId,
+              value: '0', // Would calculate based on staked amount
+              apr: pos.apr,
+              details: pos
+            }))
           )
           break
 
@@ -539,9 +574,30 @@ export class DeFiService {
           const baseYieldPositions = await this.getYieldFarmingPositions(user, networkId)
 
           allPositions.push(
-            ...aerodromePositions.map(pos => ({ ...pos, type: 'liquidity' as const })),
-            ...usdcProducts.map(pos => ({ ...pos, type: 'lending' as const })),
-            ...baseYieldPositions.map(pos => ({ ...pos, type: pos.type as 'farming' | 'staking' })),
+            ...aerodromePositions.map(pos => ({
+              type: 'liquidity' as const,
+              protocol: pos.protocol,
+              networkId: pos.networkId,
+              value: '0', // Would calculate based on token prices
+              apr: pos.apr,
+              details: pos
+            })),
+            ...usdcProducts.map(pos => ({
+              type: 'lending' as const,
+              protocol: pos.protocol,
+              networkId: pos.networkId,
+              value: '0', // Would calculate based on position value
+              apr: pos.apr,
+              details: pos
+            })),
+            ...baseYieldPositions.map(pos => ({
+              type: pos.type as 'farming' | 'staking',
+              protocol: pos.protocol,
+              networkId: pos.networkId,
+              value: '0', // Would calculate based on staked amount
+              apr: pos.apr,
+              details: pos
+            })),
             ...coinbaseIntegrations.map(integration => ({
               type: 'farming' as const,
               protocol: integration.protocol,
@@ -559,7 +615,14 @@ export class DeFiService {
 
           allPositions.push(
             ...scrollPositions,
-            ...scrollYieldPositions.map(pos => ({ ...pos, type: pos.type as 'farming' | 'staking' }))
+            ...scrollYieldPositions.map(pos => ({
+              type: pos.type as 'farming' | 'staking',
+              protocol: pos.protocol,
+              networkId: pos.networkId,
+              value: '0', // Would calculate based on staked amount
+              apr: pos.apr,
+              details: pos
+            }))
           )
           break
       }

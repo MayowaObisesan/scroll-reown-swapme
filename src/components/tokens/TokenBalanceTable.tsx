@@ -13,9 +13,9 @@ import {
   ModalHeader,
   ModalBody,
   useDisclosure,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import { TokenBalance, TokenStandard } from "../../types/token";
-import { Spinner } from "@nextui-org/spinner";
+import { Spinner } from "@heroui/spinner";
 
 // Lazy load TokenAnalytics for better performance
 const TokenAnalytics = lazy(() => import("./TokenAnalytics").then(module => ({ default: module.TokenAnalytics })));

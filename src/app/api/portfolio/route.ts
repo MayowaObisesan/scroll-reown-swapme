@@ -1,6 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getPublicClient } from '@wagmi/core';
-import { wagmiAdapter } from '../../../config/wagmi';
 import { getAlchemyNetworkForChain } from '../../../utils/networkUtils';
 import { getMultipleTokenPrices } from '../../../utils/priceUtils';
 import {
@@ -10,9 +8,9 @@ import {
 } from '../../../utils/advancedTokenUtils';
 import { TokenBalance, TokenStandard } from '../../../types/token';
 import { networks } from '../../../config/wagmi';
-import { Alchemy, Network } from 'alchemy-sdk';
+import { Alchemy } from 'alchemy-sdk';
 
-export async function GET(request: NextRequest) {
+export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const { searchParams } = new URL(request.url);
     const address = searchParams.get('address');

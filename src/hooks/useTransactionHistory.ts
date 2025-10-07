@@ -41,12 +41,6 @@ export const useTransactionStatus = (hash?: string, networkId?: number) => {
       return getTransactionStatus(hash, networkId);
     },
     enabled: !!hash && !!networkId,
-    refetchInterval: (data) => {
-      // Stop polling if transaction is confirmed or failed
-      if (data === TransactionStatus.CONFIRMED || data === TransactionStatus.FAILED) {
-        return false;
-      }
-      return 10000; // Poll every 10 seconds while pending
-    },
+    refetchInterval: 10000, // Poll every 10 seconds
   });
 };

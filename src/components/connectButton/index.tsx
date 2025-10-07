@@ -2,7 +2,8 @@
 export default function ConnectButton() {
   return (
     <div aria-label="Connect wallet to view token balances">
-      <w3m-button />
+        {/*<w3m-button />*/}
+      <appkit-button/>
     </div>
   );
 }

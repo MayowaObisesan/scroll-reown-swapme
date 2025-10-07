@@ -1,10 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { Button } from '@nextui-org/button'
-import { Input } from '@nextui-org/input'
-import { Select, SelectItem } from '@nextui-org/select'
-import { Card, CardBody, CardHeader } from '@nextui-org/card'
+import { Button } from "@heroui/button"
+import { Input } from "@heroui/input"
+import { Select, SelectItem } from "@heroui/select"
+import { Card, CardBody, CardHeader } from "@heroui/card"
 import { useAccount, useWriteContract } from 'wagmi'
 import { parseEther } from 'viem'
 import BridgeService from '../../utils/bridgeUtils'
@@ -52,70 +52,8 @@ export default function BridgeInterface() {
   }
 
   const handleBridge = async () => {
-    if (!address || !amount || !tokenAddress || !fromChain || !toChain || !bridgeType) return
-
-    setIsLoading(true)
-    try {
-      let txHash: string
-
-      switch (bridgeType) {
-        case 'scroll':
-          txHash = await BridgeService.bridgeToScroll(
-            amount,
-            tokenAddress as `0x${string}`,
-            parseInt(fromChain),
-            parseInt(toChain)
-          )
-          break
-        case 'base':
-          txHash = await BridgeService.bridgeToBase(
-            amount,
-            tokenAddress as `0x${string}`,
-            parseInt(fromChain),
-            parseInt(toChain)
-          )
-          break
-        case 'hop':
-          txHash = await BridgeService.bridgeViaHop(
-            amount,
-            tokenAddress as `0x${string}`,
-            parseInt(fromChain),
-            parseInt(toChain)
-          )
-          break
-        case 'across':
-          txHash = await BridgeService.bridgeViaAcross(
-            amount,
-            tokenAddress as `0x${string}`,
-            parseInt(fromChain),
-            parseInt(toChain)
-          )
-          break
-        default:
-          throw new Error('Unsupported bridge type')
-      }
-
-      // Store transaction for tracking
-      const transaction: any = {
-        id: txHash,
-        fromChain: parseInt(fromChain),
-        toChain: parseInt(toChain),
-        amount,
-        token: tokenAddress,
-        user: address,
-        status: 'pending',
-        txHash,
-        timestamp: Date.now()
-      }
-
-      console.log('Bridge transaction initiated:', transaction)
-      alert(`Bridge transaction submitted! Hash: ${txHash}`)
-    } catch (error) {
-      console.error('Bridge failed:', error)
-      alert('Bridge transaction failed')
-    } finally {
-      setIsLoading(false)
-    }
+    // Bridge functionality is not implemented yet
+    alert('Bridge functionality is coming soon! This is a placeholder implementation.')
   }
 
   return (
@@ -128,11 +66,11 @@ export default function BridgeInterface() {
           <Select
             label="From Chain"
             placeholder="Select source chain"
-            value={fromChain}
-            onChange={(e) => setFromChain(e.target.value)}
+            selectedKeys={fromChain ? [fromChain] : []}
+            onSelectionChange={(keys) => setFromChain(Array.from(keys)[0] as string)}
           >
             {SUPPORTED_CHAINS.map((chain) => (
-              <SelectItem key={chain.id.toString()} value={chain.id.toString()}>
+              <SelectItem key={chain.id.toString()}>
                 {chain.name}
               </SelectItem>
             ))}
@@ -141,11 +79,11 @@ export default function BridgeInterface() {
           <Select
             label="To Chain"
             placeholder="Select destination chain"
-            value={toChain}
-            onChange={(e) => setToChain(e.target.value)}
+            selectedKeys={toChain ? [toChain] : []}
+            onSelectionChange={(keys) => setToChain(Array.from(keys)[0] as string)}
           >
             {SUPPORTED_CHAINS.map((chain) => (
-              <SelectItem key={chain.id.toString()} value={chain.id.toString()}>
+              <SelectItem key={chain.id.toString()}>
                 {chain.name}
               </SelectItem>
             ))}
@@ -155,11 +93,11 @@ export default function BridgeInterface() {
         <Select
           label="Bridge Protocol"
           placeholder="Select bridge"
-          value={bridgeType}
-          onChange={(e) => setBridgeType(e.target.value)}
+          selectedKeys={bridgeType ? [bridgeType] : []}
+          onSelectionChange={(keys) => setBridgeType(Array.from(keys)[0] as string)}
         >
           {BRIDGE_TYPES.map((bridge) => (
-            <SelectItem key={bridge.key} value={bridge.key}>
+            <SelectItem key={bridge.key}>
               {bridge.label}
             </SelectItem>
           ))}

@@ -1,4 +1,4 @@
-import { Alchemy, Network } from 'alchemy-sdk';
+import { Alchemy, Network, AssetTransfersCategory } from 'alchemy-sdk';
 import { getAlchemyNetworkForChain } from './networkUtils';
 import { Transaction, TransactionStatus, TransactionType, GasAnalytics } from '../types/token';
 import { withRetry } from './retryWrapper';
@@ -31,7 +31,7 @@ export const fetchTransactionHistory = async (
     const response = await alchemy.core.getAssetTransfers({
       fromBlock: '0x0',
       toAddress: address,
-      category: ['external', 'internal', 'erc20', 'erc721', 'erc1155'],
+      category: [AssetTransfersCategory.EXTERNAL, AssetTransfersCategory.INTERNAL, AssetTransfersCategory.ERC20, AssetTransfersCategory.ERC721, AssetTransfersCategory.ERC1155],
       withMetadata: true,
       maxCount: 100,
       pageKey,
@@ -59,7 +59,7 @@ export const fetchTransactionHistory = async (
             symbol: 'ETH',
             amount: transfer.value?.toString() || '0',
           } : {
-            address: transfer.contractAddress || '',
+            address: transfer.rawContract?.address || '',
             symbol: transfer.asset,
             amount: transfer.value?.toString() || '0',
           }
@@ -110,7 +110,7 @@ export const categorizeTransaction = (transaction: Transaction): Transaction => 
     transaction.category = 'swap';
   } else {
     // Check for common DeFi contract interactions
-    const defiContracts = [
+    const defiContracts: string[] = [
       // Add known DeFi contract addresses here
     ];
 

@@ -1,4 +1,4 @@
-import { Link } from "@nextui-org/link";
+import { Link } from "@heroui/link";
 import NextLink from "next/link";
 import { siteConfig } from "@/config/site";
 import {
@@ -7,7 +7,7 @@ import {
   NavbarMenuToggle,
   NavbarItem,
   NavbarBrand,
-} from "@nextui-org/navbar";
+} from "@heroui/navbar";
 import { TwitterIcon, GithubIcon, DiscordIcon } from "@/components/icons";
 
 export default function Footer() {

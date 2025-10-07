@@ -1,4 +1,4 @@
-import { Spacer } from "@nextui-org/spacer";
+import { Spacer } from "@heroui/spacer";
 
 export function DotSpacer({ space = 3 }: { space?: any }) {
   return (

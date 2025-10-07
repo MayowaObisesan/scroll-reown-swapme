@@ -1,19 +1,17 @@
 "use client";
 
-import React, { useMemo, useEffect, useState, Suspense, lazy } from "react";
-import { Card, CardHeader, CardBody } from "@nextui-org/card";
-import { Chip } from "@nextui-org/chip";
-import { Progress } from "@nextui-org/progress";
-import { Spinner } from "@nextui-org/spinner";
-import { Button } from "@nextui-org/button";
+import React, { useMemo, useEffect, useState } from "react";
+import { Card, CardHeader, CardBody } from "@heroui/card";
+import { Chip } from "@heroui/chip";
+import { Progress } from "@heroui/progress";
+import { Spinner } from "@heroui/spinner";
+import { Button } from "@heroui/button";
 import { RefreshCw } from "lucide-react";
 import { TokenBalance } from "../../types/token";
 import { TokenBalanceTable } from "../tokens/TokenBalanceTable";
 import { getMultipleNetworkHealth, NetworkHealth } from "../../utils/networkHealthUtils";
 import { networks } from "../../config/wagmi";
 
-// Lazy load DeFi integrations for better performance
-const DeFiPositions = lazy(() => import("../defi").then(module => ({ default: module.DeFiPositions })));
 
 interface MultiChainDashboardProps {
   balances: TokenBalance[];
@@ -132,7 +130,7 @@ export const MultiChainDashboard: React.FC<MultiChainDashboardProps> = ({
       return {
         message: `Consider switching to ${cheapest.networkName} for lower gas fees`,
         recommendedNetwork: cheapest.networkName,
-        savings: currentExpensive.gasPrice ?
+        savings: currentExpensive.gasPrice && cheapest.gasPrice ?
           ((parseInt(currentExpensive.gasPrice) - parseInt(cheapest.gasPrice)) / 1e9).toFixed(2) : '0'
       };
     }
@@ -270,64 +268,67 @@ export const MultiChainDashboard: React.FC<MultiChainDashboardProps> = ({
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {networkHealth.map((health) => (
-                <div key={health.networkId} className="p-4 border rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
-                    <Chip
-                      color={getNetworkColor(health.networkName) as any}
-                      variant="flat"
-                      size="sm"
-                    >
-                      {health.networkName}
-                    </Chip>
-                    {health.congestion && (
+                <Card key={health.networkId}>
+                  <CardBody>
+                    <div className="flex items-center justify-between mb-2">
                       <Chip
-                        color={
-                          health.congestion === 'low' ? 'success' :
-                          health.congestion === 'medium' ? 'warning' : 'danger'
-                        }
-                        variant="dot"
+                        color={getNetworkColor(health.networkName) as any}
+                        variant="solid"
                         size="sm"
                       >
-                        {health.congestion.toUpperCase()}
+                        {health.networkName}
                       </Chip>
-                    )}
-                  </div>
-                  {health.error ? (
-                    <p className="text-sm text-red-500">{health.error}</p>
-                  ) : (
-                    <div className="space-y-1">
-                      {health.gasPrice && (
-                        <p className="text-sm">
-                          Gas: {(parseInt(health.gasPrice) / 1e9).toFixed(2)} Gwei
-                        </p>
-                      )}
-                      {health.lastBlock && (
-                        <p className="text-sm text-gray-600">
-                          Block: {health.lastBlock.toLocaleString()}
-                        </p>
-                      )}
-                      {health.connectionQuality && (
-                        <div className="flex items-center gap-1">
-                          <span className="text-sm text-gray-600">Connection:</span>
-                          <Chip
-                            color={
-                              health.connectionQuality === 'excellent' ? 'success' :
-                              health.connectionQuality === 'good' ? 'primary' :
-                              health.connectionQuality === 'poor' ? 'warning' : 'danger'
-                            }
-                            variant="dot"
-                            size="sm"
-                          >
-                            {health.connectionQuality.toUpperCase()}
-                          </Chip>
-                          {health.responseTime && (
-                            <span className="text-xs text-gray-500">({health.responseTime}ms)</span>
-                          )}
-                        </div>
+                      {health.congestion && (
+                        <Chip
+                          className={'border-1'}
+                          color={
+                            health.congestion === 'low' ? 'success' :
+                            health.congestion === 'medium' ? 'warning' : 'danger'
+                          }
+                          variant="dot"
+                          size="sm"
+                        >
+                          {health.congestion.toUpperCase()}
+                        </Chip>
                       )}
                     </div>
-                  )}
-                </div>
+                    {health.error ? (
+                      <p className="text-sm text-red-500">{health.error}</p>
+                    ) : (
+                      <div className="space-y-1">
+                        {health.gasPrice && (
+                          <p className="text-sm">
+                            Gas: {(parseInt(health.gasPrice) / 1e9).toFixed(2)} Gwei
+                          </p>
+                        )}
+                        {health.lastBlock && (
+                          <p className="text-sm text-gray-600">
+                            Block: {health.lastBlock.toLocaleString()}
+                          </p>
+                        )}
+                        {health.connectionQuality && (
+                          <div className="flex items-center gap-1">
+                            <span className="text-sm text-gray-600">Connection:</span>
+                            <Chip
+                              color={
+                                health.connectionQuality === 'excellent' ? 'success' :
+                                health.connectionQuality === 'good' ? 'primary' :
+                                health.connectionQuality === 'poor' ? 'warning' : 'danger'
+                              }
+                              variant="flat"
+                              size="sm"
+                            >
+                              {health.connectionQuality.toUpperCase()}
+                            </Chip>
+                            {health.responseTime && (
+                              <span className="text-xs text-gray-500">({health.responseTime}ms)</span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </CardBody>
+                </Card>
               ))}
             </div>
           )}
@@ -359,18 +360,6 @@ export const MultiChainDashboard: React.FC<MultiChainDashboardProps> = ({
         </Card>
       )}
 
-      {/* DeFi Positions */}
-      <Suspense fallback={
-        <Card>
-          <CardBody>
-            <div className="flex justify-center">
-              <Spinner label="Loading DeFi integrations..." />
-            </div>
-          </CardBody>
-        </Card>
-      }>
-        <DeFiPositions onRefresh={onRefresh} />
-      </Suspense>
 
       {/* Network Errors */}
       {Object.keys(portfolioSummary.networkErrors).length > 0 && (

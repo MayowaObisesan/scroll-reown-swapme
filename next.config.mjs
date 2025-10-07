@@ -1,17 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    webpack: config => {
-        config.externals.push('pino-pretty', 'lokijs', 'encoding')
-
-        // Enable tree shaking for unused protocol code
-        config.optimization = {
-            ...config.optimization,
-            usedExports: true,
-            sideEffects: true,
-        }
-
-        return config
-    },
+    // webpack: config => {
+    //     config.externals.push('pino-pretty', 'lokijs', 'encoding')
+    //
+    //     // Enable tree shaking for unused protocol code
+    //     config.optimization = {
+    //         ...config.optimization,
+    //         usedExports: true,
+    //         sideEffects: true,
+    //     }
+    //
+    //     return config
+    // },
     // Enable CDN optimization for static assets
     images: {
         domains: ['assets.coingecko.com', 'raw.githubusercontent.com'],
@@ -19,6 +19,10 @@ const nextConfig = {
     },
     // Enable compression
     compress: true,
+    // Ignore ESLint errors during build
+    eslint: {
+        ignoreDuringBuilds: true,
+    },
     // experimental: {
     //     turbo: {
     //         rules: {

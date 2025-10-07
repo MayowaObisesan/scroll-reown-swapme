@@ -70,8 +70,8 @@ export const SecurityDashboard: React.FC = () => {
     // This is a simplified implementation
     try {
       // In a real implementation, you'd check for WebUSB or similar APIs
-      const devices = await navigator.usb.getDevices();
-      const hardwareWallets = devices.filter(device =>
+      const devices = await (navigator as any).usb.getDevices();
+      const hardwareWallets = devices.filter((device: any) =>
         device.productName?.includes('Ledger') ||
         device.productName?.includes('Trezor')
       );

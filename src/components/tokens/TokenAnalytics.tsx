@@ -15,7 +15,7 @@ import {
   TableCell,
   Spinner,
   Chip,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import { TokenBalance, TokenTransfer } from "../../types/token";
 import { Alchemy, Network } from "alchemy-sdk";
 import { getAlchemyNetworkForChain } from "../../utils/networkUtils";

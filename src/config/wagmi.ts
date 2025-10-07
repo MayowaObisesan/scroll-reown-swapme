@@ -1,6 +1,6 @@
 import { createAppKit } from '@reown/appkit/react'
 
-import { arbitrum, mainnet, scrollSepolia, base, baseSepolia, sepolia, goerli } from '@reown/appkit/networks'
+import { arbitrum, mainnet, scrollSepolia, base, baseSepolia, sepolia } from '@reown/appkit/networks'
 import { QueryClient } from '@tanstack/react-query'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 import { defineChain } from 'viem'
@@ -46,7 +46,7 @@ const customScroll = defineChain({
 });
 
 // 3. Set the networks
-export const networks = [scrollSepolia, customScroll, baseSepolia, base, mainnet, sepolia, goerli]
+export const networks = [scrollSepolia, baseSepolia, base, mainnet, sepolia]
 
 // 4. Create Wagmi Adapter
 export const wagmiAdapter = new WagmiAdapter({

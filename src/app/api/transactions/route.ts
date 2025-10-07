@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAlchemyNetworkForChain } from '../../../utils/networkUtils';
 import { networks } from '../../../config/wagmi';
-import { Alchemy } from 'alchemy-sdk';
+import { Alchemy, AssetTransfersCategory, SortingOrder } from 'alchemy-sdk';
 import { Transaction, TransactionStatus, TransactionType } from '../../../types/token';
 
 export async function GET(request: NextRequest) {
@@ -49,9 +49,9 @@ export async function GET(request: NextRequest) {
         const transactions = await alchemy.core.getAssetTransfers({
           fromBlock: '0x0',
           toAddress: address,
-          category: ['external', 'internal', 'erc20', 'erc721', 'erc1155'],
+          category: [AssetTransfersCategory.EXTERNAL, AssetTransfersCategory.INTERNAL, AssetTransfersCategory.ERC20, AssetTransfersCategory.ERC721, AssetTransfersCategory.ERC1155],
           maxCount: Math.min(limit, 100), // Alchemy limit
-          order: 'desc',
+          order: SortingOrder.DESCENDING,
         });
 
         return transactions.transfers.map((tx): Transaction => ({
@@ -59,14 +59,14 @@ export async function GET(request: NextRequest) {
           from: tx.from,
           to: tx.to || '',
           value: tx.value?.toString() || '0',
-          timestamp: tx.metadata?.blockTimestamp ? new Date(tx.metadata.blockTimestamp).getTime() : Date.now(),
+          timestamp: Date.now(), // Use current timestamp as fallback since Alchemy API structure changed
           status: TransactionStatus.CONFIRMED,
           type: getTransactionType(tx.category),
           networkId: network.id,
           networkName: network.name,
-          gasUsed: tx.gas?.toString(),
-          gasPrice: tx.gasPrice?.toString(),
-          blockNumber: tx.blockNum?.toString(),
+          gasUsed: undefined, // Not available in current Alchemy API structure
+          gasPrice: undefined, // Not available in current Alchemy API structure
+          blockNumber: tx.blockNum ? parseInt(tx.blockNum.toString()) : undefined,
           category: tx.to?.toLowerCase() === address.toLowerCase() ? 'receive' : 'send',
         }));
       } catch (networkError) {

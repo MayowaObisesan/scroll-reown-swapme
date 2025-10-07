@@ -12,7 +12,7 @@ import {
   Select,
   SelectItem,
   useDisclosure,
-} from "@nextui-org/react";
+} from "@heroui/react";
 import { TokenStandard, CustomToken } from "../../types/token";
 import { validateCustomToken } from "../../utils/advancedTokenUtils";
 
@@ -108,7 +108,7 @@ export const CustomTokenImport: React.FC<CustomTokenImportProps> = ({
                     }}
                   >
                     {TOKEN_STANDARDS.map((std) => (
-                      <SelectItem key={std.key} value={std.key}>
+                      <SelectItem key={std.key}>
                         {std.label}
                       </SelectItem>
                     ))}

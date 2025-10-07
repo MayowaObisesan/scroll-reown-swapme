@@ -16,6 +16,10 @@ export const siteConfig = {
             label: "Account",
             href: "/account",
         },
+        {
+            label: "DeFi",
+            href: "/defi",
+        },
         // {
         //     label: "Rewards",
         //     href: "/rewards",
